@@ -6,9 +6,9 @@ namespace NetCoreLinqToSqlInjection.Controllers
 {
     public class DoctoresController : Controller
     {
-        RepositoryDoctoresSQLServer repo;
+        IRepositoryDoctores repo;
 
-        public DoctoresController(RepositoryDoctoresSQLServer repo)
+        public DoctoresController(IRepositoryDoctores repo)
         {
             this.repo = repo;
         }
@@ -29,6 +29,12 @@ namespace NetCoreLinqToSqlInjection.Controllers
         {
             this.repo.InsertDoctor(doc.IdDoctor, doc.Apellido
                 , doc.Especialidad, doc.Salario, doc.IdHospital);
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Delete(int iddoctor)
+        {
+            this.repo.DeleteDoctor(iddoctor);
             return RedirectToAction("Index");
         }
     }
