@@ -1,6 +1,7 @@
 ﻿using NetCoreLinqToSqlInjection.Models;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
+using System.Security.Cryptography.Xml;
 
 #region PROCEDIMIENTOS ALMACENADOS
 /*
@@ -12,6 +13,19 @@ begin
   delete from DOCTOR where DOCTOR_NO=p_iddoctor;
   commit;
 end; 
+create or replace procedure sp_update_doctor
+(p_iddoctor DOCTOR.DOCTOR_NO%TYPE
+, p_apellido DOCTOR.APELLIDO%TYPE
+, p_especialidad DOCTOR.ESPECIALIDAD%TYPE
+, p_salario DOCTOR.SALARIO%TYPE
+, p_idhospital DOCTOR.HOSPITAL_COD%TYPE)
+as
+begin
+  update DOCTOR set APELLIDO=p_apellido, ESPECIALIDAD=p_especialidad
+  , SALARIO=p_salario, HOSPITAL_COD=p_idhospital
+  where DOCTOR_NO=p_iddoctor;
+  commit;
+end;
  */
 #endregion
 
@@ -94,5 +108,68 @@ namespace NetCoreLinqToSqlInjection.Repositories
             this.cn.Close();
             this.com.Parameters.Clear();
         }
+
+        public void UpdateDoctor(int idDoctor, string apellido
+            , string especialidad, int salario, int idHospital)
+        {
+            string sql = "sp_update_doctor";
+            OracleParameter pamId =
+                new OracleParameter(":p_iddoctor", idDoctor);
+            this.com.Parameters.Add(pamId);
+            OracleParameter pamApe =
+                new OracleParameter(":p_apellido", apellido);
+            this.com.Parameters.Add(pamApe);
+            OracleParameter pamEspe =
+                new OracleParameter(":p_especialidad", especialidad);
+            this.com.Parameters.Add(pamEspe);
+            OracleParameter pamSal = new OracleParameter(":p_salario", salario);
+            this.com.Parameters.Add(pamSal);
+            OracleParameter pamHosp =
+                new OracleParameter(":p_idhospital", idHospital);
+            this.com.Parameters.Add(pamHosp);
+            this.com.CommandType = CommandType.StoredProcedure;
+            this.com.CommandText = sql;
+            this.cn.Open();
+            this.com.ExecuteNonQuery();
+            this.cn.Close();
+            this.com.Parameters.Clear();
+        }
+
+        public Doctor FindDoctor(int idDoctor)
+        {
+            var consulta = from datos in this.tablaDoctores.AsEnumerable()
+                           where datos.Field<int>("DOCTOR_NO") == idDoctor
+                           select datos;
+            var row = consulta.First();
+            Doctor doc = new Doctor();
+            doc.IdDoctor = row.Field<int>("DOCTOR_NO");
+            doc.Apellido = row.Field<string>("APELLIDO");
+            doc.Especialidad = row.Field<string>("ESPECIALIDAD");
+            doc.Salario = row.Field<int>("SALARIO");
+            doc.IdHospital = row.Field<int>("HOSPITAL_COD");
+            return doc;
+        }
+
+        public List<Doctor> GetDoctoresEspecialidad(string especialidad)
+        {
+            var consulta = from datos in this.tablaDoctores.AsEnumerable()
+where (datos.Field<string>("ESPECIALIDAD")).ToUpper()
+                           == especialidad.ToUpper()
+                           select datos;
+            List<Doctor> doctores = new List<Doctor>();
+            foreach (var row in consulta)
+            {
+                Doctor doc = new Doctor();
+                doc.IdDoctor = row.Field<int>("DOCTOR_NO");
+                doc.Apellido = row.Field<string>("APELLIDO");
+                doc.Especialidad = row.Field<string>("ESPECIALIDAD");
+                doc.Salario = row.Field<int>("SALARIO");
+                doc.IdHospital = row.Field<int>("HOSPITAL_COD");
+                doctores.Add(doc);
+            }
+            return doctores;
+        }
+
+
     }
 }

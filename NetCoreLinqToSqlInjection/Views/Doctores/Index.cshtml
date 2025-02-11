@@ -33,6 +33,13 @@
                         class="btn btn-danger">
                         Delete
                     </a>
+
+                    <a asp-controller="Doctores"
+                       asp-action="Edit"
+                       asp-route-iddoctor="@doctor.IdDoctor"
+                       class="btn btn-info">
+                        Edit
+                    </a>
                 </td>
             </tr>
         }
