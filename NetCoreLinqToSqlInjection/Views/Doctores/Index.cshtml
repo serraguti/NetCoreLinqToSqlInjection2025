@@ -1,0 +1,31 @@
+﻿@model List<Doctor>
+
+<h1>Doctores SQL Server/Oracle</h1>
+<p>
+    <a asp-controller="Doctores"
+    asp-action="Create">
+        Create New Doctor
+    </a>
+</p>
+<table class="table table-active">
+    <thead>
+        <tr>
+            <th>Id doctor</th>
+            <th>Apellido</th>
+            <th>Especialidad</th>
+            <th>Salario</th>
+            <th>Hospital</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Doctor doctor in Model){
+            <tr>
+                <td>@doctor.IdDoctor</td>
+                <td>@doctor.Apellido</td>
+                <td>@doctor.Especialidad</td>
+                <td>@doctor.Salario</td>
+                <td>@doctor.IdHospital</td>
+            </tr>
+        }
+    </tbody>
+</table>
